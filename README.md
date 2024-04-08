@@ -1,7 +1,11 @@
 <!--
  * @Date: 2024-04-08 17:45:43
  * @LastEditors: Heng-Mei l888999666y@gmail.com
+<<<<<<< HEAD
  * @LastEditTime: 2024-04-08 18:17:29
+=======
+ * @LastEditTime: 2024-04-08 18:07:47
+>>>>>>> 2df6cb715be2d902cd590c5c81db0341571a6ea9
 -->
 # 基于Python3.11的DE(Differential Evolution)算法实现
 
