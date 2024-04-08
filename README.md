@@ -1,7 +1,7 @@
 <!--
  * @Date: 2024-04-08 17:45:43
  * @LastEditors: Heng-Mei l888999666y@gmail.com
- * @LastEditTime: 2024-04-08 17:53:55
+ * @LastEditTime: 2024-04-08 18:07:47
 -->
 # 基于Python3.11的DE(Differential Evolution)算法实现
 
@@ -37,3 +37,7 @@ de.run(50000)
 de.draw()
 
 ```
+
+## 迭代图
+
+![迭代图](result\plot.png)
