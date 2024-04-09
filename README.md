@@ -1,20 +1,20 @@
 <!--
  * @Date: 2024-04-08 17:45:43
  * @LastEditors: Heng-Mei l888999666y@gmail.com
- * @LastEditTime: 2024-04-09 22:24:23
+ * @LastEditTime: 2024-04-09 22:30:25
 -->
 # 基于Python3.11的优化算法实现
 
 ## 算法
 
-[x] DE(Differential Evolution)，差分进化算法
+- [x] DE(Differential Evolution)，差分进化算法
 
 ## 类
 
-- Solution
-- OptAlgorithm
-  > DE(Differential Evolution)
-- Problem
+- [Solution](optimization/solution/Solution.py)
+- [OptAlgorithm](optimization/algorithm/OptAlgorithm.py)
+  > [DE(Differential Evolution)](optimization/algorithm/DE.py)
+- [Problem](optimization/problem/Problem.py)
 
 ## 使用示例
 
