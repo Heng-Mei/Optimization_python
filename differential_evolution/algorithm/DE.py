@@ -1,9 +1,10 @@
 """
 Date: 2024-04-08 15:17:45
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-08 17:29:44
+LastEditTime: 2024-04-09 17:20:36
 """
 
+from urllib.parse import SplitResult
 import numpy as np
 import random as random
 import matplotlib.pyplot as plt
@@ -29,23 +30,31 @@ class DE:
         self.__bests: list[Solution] = []
         self.__FEs_list: list[int] = []
 
-    def __mutate(self) -> np.ndarray:
-        new_pop = np.zeros((self.__pop_size, self.__problem.dim))
+    def __mutate(self) -> list[Solution]:
+        new_pop: list[Solution] = []
         for i in range(self.__pop_size):
             temp: list[Solution] = random.sample(self.__population, 3)
-            new_pop[i] = temp[0].dec + self.__mutation * (temp[1].dec - temp[2].dec)
+            new_pop.append(
+                Solution(temp[0].dec + self.__mutation * (temp[1].dec - temp[2].dec))
+            )
         return new_pop
 
-    def __cross(self, new_pop: np.ndarray) -> None:
+    def __cross(self, new_pop: list[Solution]) -> None:
         for i in range(self.__pop_size):
             if random.random() > self.__crossover:
-                new_pop[i] = self.__population[i].dec
+                new_pop[i].dec = self.__population[i].dec
 
-    def __select(self, new_pop: np.ndarray) -> None:
-        new_sol_pop = list(map(self.__problem.evaluate, new_pop))
+    def __select(self, new_pop: list[Solution]) -> None:
         for i in range(self.__pop_size):
-            if new_sol_pop[i].obj < self.__population[i].obj:
-                self.__population[i] = new_sol_pop[i]
+            if new_pop[i].obj < self.__population[i].obj:
+                self.__population[i] = new_pop[i]
+
+    def evaluate_pop(self, population: list[Solution] | None = None) -> None:
+        if population is None:
+            population = self.__population
+        
+        for solution in population:
+            self.__problem.evaluate(solution)
 
     def run(self, max_FEs: int = int(1e6)) -> None:
         pbar = tqdm.tqdm(total=max_FEs, unit="FEs")
@@ -53,8 +62,12 @@ class DE:
         self.__bests = []
         self.__FEs_list = []
         FEs = 0
-        pop_dec = self.__problem.init_population(self.__pop_size)
-        self.__population: list[Solution] = list(map(self.__problem.evaluate, pop_dec))
+        self.__population: list[Solution] = self.__problem.init_population(
+            self.__pop_size
+        )
+
+        self.evaluate_pop()
+
         FEs += self.__pop_size
         self.__bests.append(min(self.__population, key=lambda x: x.obj))
         self.__FEs_list.append(FEs)
@@ -65,6 +78,7 @@ class DE:
         while FEs < max_FEs:
             new_pop = self.__mutate()
             self.__cross(new_pop)
+            self.evaluate_pop(new_pop)
             self.__select(new_pop)
             FEs += self.__pop_size
             pbar.set_description(f"Best solution: {self.__bests[-1].obj:.2e}")
