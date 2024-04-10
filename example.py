@@ -1,18 +1,20 @@
 """
 Date: 2024-04-08 15:18:15
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-09 21:59:05
+LastEditTime: 2024-04-10 11:32:56
 """
 
 from typing import Callable
 import numpy as np
 from optimization import *
 
+dim: int = 10
+
 # 上下界
-bounds = np.array(((-10, -10), (10, 10)))
+bounds = np.array((-10 * np.ones((1, dim)), 10 * np.ones((1, dim)))).reshape((2, dim))
 
 # 可调用的目标函数
-obj_fcn: Callable[[np.ndarray], float] = lambda x: x[0] ** 2 + x[1] ** 2
+obj_fcn: Callable[[np.ndarray], float] = lambda x: np.matmul(x, x.T)
 
 # 创建问题
 problem = Problem(func=obj_fcn, bounds=bounds)

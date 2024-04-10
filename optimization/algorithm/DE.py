@@ -1,10 +1,11 @@
 """
 Date: 2024-04-08 15:17:45
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-09 21:41:39
+LastEditTime: 2024-04-10 11:48:19
 """
 
 import random as random
+from matplotlib.markers import MarkerStyle
 import matplotlib.pyplot as plt
 import tqdm as tqdm
 
@@ -81,8 +82,11 @@ class DE(OptAlgorithm):
 
     def draw(self) -> None:
         """重写父类的绘制方法, 主要修改了绘图的标题"""
-        plt.plot(self._FEs_list, [x.obj for x in self._bests])
+        plt.plot(
+            self._FEs_list, [x.obj for x in self._bests], marker="o", ms=4, label="Best"
+        )
         plt.xlabel(xlabel="FEs")
         plt.ylabel(ylabel="Objective Value")
         plt.title(label="Differential Evolution")
+        plt.legend()
         plt.show()

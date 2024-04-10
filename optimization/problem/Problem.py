@@ -1,7 +1,7 @@
 """
 Date: 2024-04-08 15:17:56
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-09 21:55:23
+LastEditTime: 2024-04-10 11:19:07
 """
 
 from typing import Callable
@@ -42,7 +42,7 @@ class Problem:
         self.__con_func: Callable[[np.ndarray], float] | None = con_func
         self.__repair_func: Callable[[np.ndarray], np.ndarray] | None = repair_func
 
-        if bounds.shape[0] != 2:
+        if bounds.shape[0] != 2 or bounds.ndim != 2:
             raise DimensionError("bounds must be a 2-D array")
         self.__dim: int = bounds.shape[1]
 
