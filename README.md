@@ -1,7 +1,7 @@
 <!--
  * @Date: 2024-04-08 17:45:43
  * @LastEditors: Heng-Mei l888999666y@gmail.com
- * @LastEditTime: 2024-04-10 11:57:20
+ * @LastEditTime: 2024-04-10 15:45:32
 -->
 # 基于Python3.11的优化算法实现
 
@@ -42,11 +42,20 @@ de.run(max_FEs=10000)
 
 # 绘图
 de.draw()
+
+# 输出结果
+de.output()
 ```
 
-## 迭代图
+## 算法结果
+
+### 迭代图
 
 ![DE迭代图](https://github.com/Heng-Mei/DE/blob/main/result/plot.png)
+
+### 最终种群
+
+最终种群可通过`DE.output([filename])`输出为csv文件，filename默认为[result/results](result/results)
 
 ## 参考文献
 
