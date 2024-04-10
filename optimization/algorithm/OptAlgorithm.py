@@ -1,11 +1,12 @@
 """
 Date: 2024-04-09 11:00:39
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-09 21:39:13
+LastEditTime: 2024-04-10 15:35:32
 """
 
-import random as random
+from typing import Any, Generator
 import matplotlib.pyplot as plt
+import pandas as pd
 import tqdm as tqdm
 from abc import abstractmethod, ABC
 
@@ -72,6 +73,29 @@ class OptAlgorithm(ABC):
         for solution in population:
             self._problem.evaluate(sol=solution)
 
+    def _to_dataframe(self, population: list[Solution] | None = None) -> pd.DataFrame:
+        """将种群转化成DataFrame格式, 便于输出结果
+
+        Returns
+        -------
+        pd.DataFrame
+            population的DataFrame格式
+        """
+        pop_to_csv: list[Solution] = (
+            self._population if population is None else population
+        )
+
+        pop: Generator[tuple[float, float, *tuple[Any, ...]], None, None] = (
+            (solution.obj, solution.con) + tuple(x for x in solution.dec)
+            for solution in pop_to_csv
+        )
+
+        columns: list[str] = ["obj", "con"] + [
+            f"x{i}" for i in range(self._problem.dim)
+        ]
+
+        return pd.DataFrame(data=pop, columns=columns)
+
     def run(self, max_FEs: int = int(1e6)) -> None:
         """算法运行, 子类算法可选重写
 
@@ -116,3 +140,18 @@ class OptAlgorithm(ABC):
         plt.ylabel(ylabel="Objective Value")
         plt.title(label="Optimization Process")
         plt.show()
+
+    def output(self, filename: str = "result/result.csv") -> None:
+        """将当前种群存在文件中
+
+        Parameters
+        ----------
+        filename : str, optional
+            待存文件路径, by default result/result.csv"
+        """
+        df: pd.DataFrame = self._to_dataframe()
+        df.sort_values(by=["obj", "con"], ascending=[True, True], inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        df.to_csv(path_or_buf=filename)
+        print(f"Solution saved in {filename}")
+

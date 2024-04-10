@@ -1,7 +1,7 @@
 """
 Date: 2024-04-08 15:18:15
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-10 11:32:56
+LastEditTime: 2024-04-10 15:36:27
 """
 
 from typing import Callable
@@ -27,3 +27,6 @@ de.run(max_FEs=10000)
 
 # 绘图
 de.draw()
+
+# 输出结果
+de.output()
