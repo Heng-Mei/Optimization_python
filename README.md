@@ -1,7 +1,7 @@
 <!--
  * @Date: 2024-04-08 17:45:43
  * @LastEditors: Heng-Mei l888999666y@gmail.com
- * @LastEditTime: 2024-04-10 15:47:21
+ * @LastEditTime: 2024-04-10 15:49:26
 -->
 # 基于Python3.11的优化算法实现
 
@@ -45,8 +45,14 @@ de.draw()
 
 # 输出结果
 de.output()
+
+# 输出结果
+de.output()
 ```
 
+## 算法结果
+
+### 迭代图
 ## 算法结果
 
 ### 迭代图
