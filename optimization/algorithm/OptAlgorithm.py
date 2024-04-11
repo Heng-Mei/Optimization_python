@@ -1,7 +1,7 @@
 """
 Date: 2024-04-09 11:00:39
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-10 15:35:32
+LastEditTime: 2024-04-11 16:15:37
 """
 
 from typing import Any, Generator
@@ -35,6 +35,18 @@ class OptAlgorithm(ABC):
         self._population: list[Solution] = []
         self._bests: list[Solution] = []
         self._FEs_list: list[int] = []
+
+    @property
+    def population(self) -> list[Solution]:
+        return self._population
+
+    @property
+    def bests(self) -> list[Solution]:
+        return self._bests
+
+    @property
+    def FEs_list(self) -> list[int]:
+        return self._FEs_list
 
     @abstractmethod
     def _search(self) -> list[Solution]:
@@ -96,7 +108,7 @@ class OptAlgorithm(ABC):
 
         return pd.DataFrame(data=pop, columns=columns)
 
-    def run(self, max_FEs: int = int(1e6)) -> None:
+    def solve(self, max_FEs: int = int(1e6)) -> None:
         """算法运行, 子类算法可选重写
 
         Parameters
@@ -154,4 +166,3 @@ class OptAlgorithm(ABC):
         df.reset_index(drop=True, inplace=True)
         df.to_csv(path_or_buf=filename)
         print(f"Solution saved in {filename}")
-
