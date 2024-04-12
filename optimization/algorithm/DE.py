@@ -80,13 +80,13 @@ class DE(OptAlgorithm):
         self._evaluate_pop(population=new_pop)
         return new_pop
 
-    def draw(self) -> None:
-        """重写父类的绘制方法, 主要修改了绘图的标题"""
-        plt.plot(
-            self._FEs_list, [x.obj for x in self._bests], marker="o", ms=4, label="Best"
-        )
-        plt.xlabel(xlabel="FEs")
-        plt.ylabel(ylabel="Objective Value")
-        plt.title(label="Differential Evolution")
-        plt.legend()
-        plt.show()
+    # def draw(self) -> None:
+    #     """重写父类的绘制方法, 主要修改了绘图的标题"""
+    #     plt.plot(
+    #         self._FEs_list, [x.obj for x in self._bests], marker="o", ms=4, label="Best"
+    #     )
+    #     plt.xlabel(xlabel="FEs")
+    #     plt.ylabel(ylabel="Objective Value")
+    #     plt.title(label="Differential Evolution")
+    #     plt.legend()
+    #     plt.show()

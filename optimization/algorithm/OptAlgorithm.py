@@ -1,17 +1,25 @@
 """
 Date: 2024-04-09 11:00:39
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-11 16:15:37
+LastEditTime: 2024-04-12 22:08:36
 """
 
-from typing import Any, Generator
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 import pandas as pd
 import tqdm as tqdm
 from abc import abstractmethod, ABC
+from typing import Any, Generator, Iterable
+
+from optimization._exception.algorithm_exceptions import DrawObjectError
+
 
 from ..solution import Solution
 from ..problem import Problem
+
+from .._exception import *
+from optimization import problem
 
 
 class OptAlgorithm(ABC):
@@ -68,7 +76,7 @@ class OptAlgorithm(ABC):
             新种群
         """
         for i in range(self._pop_size):
-            if new_pop[i].obj < self._population[i].obj:
+            if new_pop[i] < self._population[i]:
                 self._population[i] = new_pop[i]
 
     def _evaluate_pop(self, population: list[Solution] | None = None) -> None:
@@ -97,18 +105,30 @@ class OptAlgorithm(ABC):
             self._population if population is None else population
         )
 
-        pop: Generator[tuple[float, float, *tuple[Any, ...]], None, None] = (
-            (solution.obj, solution.con) + tuple(x for x in solution.dec)
-            for solution in pop_to_csv
-        )
+        self._population.sort()
 
-        columns: list[str] = ["obj", "con"] + [
-            f"x{i}" for i in range(self._problem.dim)
+        pop = [
+            (
+                (
+                    tuple(solution.obj)
+                    if isinstance(solution.obj, Iterable)
+                    else (solution.obj,)
+                )
+                + (solution.con,)
+                + tuple(x for x in solution.dec)
+            )
+            for solution in pop_to_csv
         ]
+
+        columns: list[str] = (
+            [f"obj{i}" for i in range(self._problem.obj_nums)]
+            + ["con"]
+            + [f"x{i}" for i in range(self._problem.dim)]
+        )
 
         return pd.DataFrame(data=pop, columns=columns)
 
-    def solve(self, max_FEs: int = int(1e6)) -> None:
+    def solve(self, max_FEs: int | float = 1e6) -> None:
         """算法运行, 子类算法可选重写
 
         Parameters
@@ -126,10 +146,10 @@ class OptAlgorithm(ABC):
         self._evaluate_pop()
 
         FEs += self._pop_size
-        self._bests.append(min(self._population, key=lambda x: x.obj))
+        self._bests.append(min(self._population))
         self._FEs_list.append(FEs)
 
-        pbar.set_description(f"Best solution: {self._bests[-1].obj:.2e}")
+        pbar.set_description(f"Best solution: {self._bests[-1].obj}")
         pbar.update(self._pop_size)
 
         while FEs < max_FEs:
@@ -137,9 +157,9 @@ class OptAlgorithm(ABC):
             self._evaluate_pop(population=new_pop)
             self._select(new_pop)
             FEs += self._pop_size
-            pbar.set_description(desc=f"Best solution: {self._bests[-1].obj:.2e}")
+            pbar.set_description(desc=f"Best solution: {self._bests[-1].obj}")
             pbar.update(self._pop_size)
-            self._bests.append(min(self._population, key=lambda x: x.obj))
+            self._bests.append(min(self._population))
             self._FEs_list.append(FEs)
 
         print()
@@ -147,10 +167,41 @@ class OptAlgorithm(ABC):
 
     def draw(self) -> None:
         """对求解的结果进行绘图, 子类算法可选重写"""
-        plt.plot(self._FEs_list, [x.obj for x in self._bests])
-        plt.xlabel(xlabel="FEs")
-        plt.ylabel(ylabel="Objective Value")
-        plt.title(label="Optimization Process")
+
+        bests_to_draw = np.array(
+            [
+                (tuple(x.obj) if isinstance(x.obj, Iterable) else x.obj)
+                for x in self._bests
+            ]
+        )
+
+        pop_to_draw = np.array(
+            [
+                (tuple(x.obj) if isinstance(x.obj, Iterable) else x.obj)
+                for x in self._population
+            ]
+        )
+
+        if self._problem.obj_nums == 1:
+            plt.plot(self._FEs_list, bests_to_draw)
+            plt.xlabel(xlabel="FEs")
+            plt.ylabel(ylabel="Objective Value")
+            plt.title(label="Optimization Process")
+        elif self._problem.obj_nums <= 3:
+            if self._problem.obj_nums == 2:
+                plt.scatter(pop_to_draw[:, 0], pop_to_draw[:, 1])
+                plt.xlabel(xlabel="Objective 1")
+                plt.ylabel(ylabel="Objective 2")
+            else:
+                fig = plt.figure()
+                ax = plt.subplot(projection="3d")
+                ax.scatter(pop_to_draw[:, 0], pop_to_draw[:, 1], pop_to_draw[:, 2])
+                ax.set_xlabel("Objective 1")
+                ax.set_ylabel("Objective 2")
+
+            plt.title(label="Pareto Front")
+        else:
+            raise DrawObjectError("Too many objectives to draw")
         plt.show()
 
     def output(self, filename: str = "result/result.csv") -> None:
@@ -162,7 +213,6 @@ class OptAlgorithm(ABC):
             待存文件路径, by default result/result.csv"
         """
         df: pd.DataFrame = self._to_dataframe()
-        df.sort_values(by=["obj", "con"], ascending=[True, True], inplace=True)
-        df.reset_index(drop=True, inplace=True)
+
         df.to_csv(path_or_buf=filename)
         print(f"Solution saved in {filename}")

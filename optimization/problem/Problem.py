@@ -1,20 +1,21 @@
 """
 Date: 2024-04-08 15:17:56
 LastEditors: Heng-Mei l888999666y@gmail.com
-LastEditTime: 2024-04-10 11:19:07
+LastEditTime: 2024-04-12 21:58:46
 """
 
-from typing import Callable
+from typing import Callable, Iterable, Literal, Sized
 import numpy as np
+from sympy import sequence
 
-from ..solution.Solution import Solution
-from .._exception.problem_exceptions import DimensionError
+from ..solution.Solution import _ObjectLike, Solution
+from .._exception.problem_exceptions import *
 
 
 class Problem:
     def __init__(
         self,
-        func: Callable[[np.ndarray], float],
+        func: Callable[[np.ndarray], _ObjectLike],
         bounds: np.ndarray,
         con_func: Callable[[np.ndarray], float] | None = None,
         repair_func: Callable[[np.ndarray], np.ndarray] | None = None,
@@ -37,7 +38,7 @@ class Problem:
         DimensionError
             代表输入的边界不是2-D array
         """
-        self.__func: Callable[[np.ndarray], float] = func
+        self.__func: Callable[[np.ndarray], _ObjectLike] = func
         self.__bounds: np.ndarray = bounds
         self.__con_func: Callable[[np.ndarray], float] | None = con_func
         self.__repair_func: Callable[[np.ndarray], np.ndarray] | None = repair_func
@@ -46,7 +47,19 @@ class Problem:
             raise DimensionError("bounds must be a 2-D array")
         self.__dim: int = bounds.shape[1]
 
-    def __cal_obj(self, x: np.ndarray) -> float:
+        solution = Solution(
+            dec=np.random.uniform(
+                low=self.__bounds[0, :], high=self.__bounds[1, :], size=(1, self.__dim)
+            ).squeeze()
+        )
+        
+        self.evaluate(solution)
+
+        self.__obj_nums = (
+            len(tuple(solution.obj)) if isinstance(solution.obj, Iterable) else 1
+        )
+
+    def __cal_obj(self, x: np.ndarray) -> _ObjectLike:
         """计算目标函数
 
         Parameters
@@ -130,6 +143,10 @@ class Problem:
     @property
     def dim(self) -> int:
         return self.__dim
+
+    @property
+    def obj_nums(self) -> int:
+        return self.__obj_nums
 
     def init_population(self, size: int) -> list[Solution]:
         """初始化种群, 提供给算法类的接口
